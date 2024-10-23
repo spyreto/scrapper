@@ -1,102 +1,162 @@
-# Web Scraper Configuration
+# Node.js Web Scraper
 
-This project uses a `config.json` file to customize various aspects of the web scraping process. Below is a detailed description of each configuration option available in the `config.json` file.
+A customizable Node.js-based web scraper that extracts content from websites and saves it in `.txt` and `.docx` formats. The scraper allows users to specify routes, HTML elements, and CSS classes to include or exclude, and it cleans the content by removing unnecessary JavaScript and unwanted elements. This tool is useful for extracting structured website data and exporting it to easily readable formats. Configuration is flexible through a `config.json` file.
 
-## Configuration Options
+## Features
 
-### 1. `scraperOptions`
+- Scrapes all internal links (routes) from a base URL.
+- Extracts and cleans content by removing JavaScript, inline styles, and unwanted HTML elements.
+- Supports both unordered (`<ul>`) and ordered (`<ol>`) lists, exporting them as bullet points or numbered lists in DOCX.
+- Saves the scraped content as `.txt` and/or `.docx` files.
+- Optionally adds the URL of the page at the top of each file.
+- Configurable via `config.json`, allowing you to exclude specific routes, tags, and classes.
+- Logs progress and errors based on log level settings.
 
-This section contains options related to how the scraper interacts with the target website.
+## Project Structure
 
-- **`userAgent`** (string):  
-  The User-Agent string to mimic a specific browser or device during requests. This helps avoid detection as a bot and can simulate requests from real browsers.  
-  _Default_: `"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"`
+```
+web-scraper/
+├── src/
+│   ├── scraper.js           # Main entry point for the scraper
+│   ├── routes.js            # Module to extract routes
+│   ├── scraperUtils.js      # Helper functions for scraping and cleaning content
+│   ├── saveContent.js       # Functions to save content in txt/docx and list routes
+│   ├── pathUtils.js         # Utility functions for file paths
+├── data/                    # Folder to store scraped content
+│   ├── txt/                 # Folder for .txt files
+│   └── docx/                # Folder for .docx files
+├── config.json              # Configuration file for the scraper
+├── package.json             # Node.js project file
+```
 
-- **`timeout`** (number):  
-  The maximum time (in milliseconds) the scraper will wait for a server response before timing out.  
-  _Default_: `5000` (5 seconds)
+## Installation
 
-- **`maxRetries`** (number):  
-  The maximum number of retry attempts when a request fails (due to network issues or timeouts).  
-  _Default_: `3`
+1. Clone the repository:
 
-- **`requestDelay`** (number):  
-  The delay (in milliseconds) between consecutive requests to avoid overloading the target server. Useful for respecting rate limits.  
-  _Default_: `1000` (1 second)
+   ```bash
+   git clone https://github.com/yourusername/web-scraper.git
+   ```
 
----
+2. Install dependencies:
 
-### 2. `excludeOptions`
+   ```bash
+   cd web-scraper
+   npm install
+   ```
 
-This section defines which elements should be excluded or included during the scraping process.
+3. Configure the scraper by editing the `config.json` file (see configuration details below).
 
-- **`excludeClasses`** (array of strings):  
-  A list of CSS class names to exclude from the scraped content. Any HTML elements containing these classes will be removed before saving.  
-  _Example_: `["row-fluid breadcrumbsContainer", "navSection"]`
+## Usage
 
-- **`excludeTags`** (array of strings):  
-  A list of HTML tags to exclude from the scraped content.  
-  _Example_: `["footer", "header"]`
+Run the scraper with the following command:
 
-- **`includeClasses`** (array of strings):  
-  A list of CSS class names to explicitly include during scraping, if necessary. This can be useful when targeting very specific parts of a webpage.  
-  _Example_: `["content", "main"]`
+```bash
+npm run scrape -- <BASE_URL>
+```
 
----
+For example:
 
-### 3. `outputOptions`
+```bash
+npm run scrape -- https://www.example.com
+```
 
-This section defines how and where the scraped content is saved.
+The scraper will scrape all internal links (routes) from the provided base URL, extract and clean the content, and save it in `.txt` and `.docx` formats.
 
-- **`outputFormats`** (array of strings):  
-  A list of file formats to save the scraped content in. Options are `txt` for plain text and `docx` for Word documents.  
-  _Example_: `["txt", "docx"]`
+## Configuration (`config.json`)
 
-- **`outputDirectory`** (string):  
-  The base directory where the scraped content will be saved. The directory structure will be created automatically.  
-  _Default_: `"data"`
+You can customize the scraper’s behavior through the `config.json` file. Below is a breakdown of the available configuration options.
 
----
+### `scraperOptions`
 
-### 4. `logLevel`
+```json
+{
+  "scraperOptions": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
+    "timeout": 5000,
+    "maxRetries": 3,
+    "requestDelay": 1000
+  }
+}
+```
 
-- **`logLevel`** (string):  
-  Specifies the level of logging detail. Available options are:
+- **`userAgent`**: A string to mimic a specific browser or device (optional). Default: A typical Chrome user agent.
+- **`timeout`**: Timeout for HTTP requests in milliseconds (optional). Default: 5000 ms.
+- **`maxRetries`**: Maximum number of retries for a failed request (optional). Default: 3 retries.
+- **`requestDelay`**: Delay between requests in milliseconds to avoid overwhelming the server (optional). Default: 1000 ms.
 
-  - `"error"`: Log only errors.
-  - `"warn"`: Log warnings and errors.
-  - `"info"`: Log general information, warnings, and errors.
-  - `"debug"`: Log detailed debugging information, including request/response details.
+### `excludeOptions`
 
-  _Default_: `"info"`
+```json
+{
+  "excludeOptions": {
+    "excludeClasses": ["row-fluid breadcrumbsContainer", "navSection"],
+    "excludeTags": ["footer", "header"]
+  }
+}
+```
 
----
+- **`excludeClasses`**: Array of CSS class names to exclude from scraping (optional).
+- **`excludeTags`**: Array of HTML tags to exclude from scraping (optional).
 
-### 5. `contentSelectors`
+### `excludeRoutes`
 
-This section specifies CSS selectors to target specific sections of the webpage for scraping.
+```json
+{
+  "excludeRoutes": ["/contact", "/aboutus", "/login"]
+}
+```
 
-- **`mainContent`** (string):  
-  The CSS selector for the main content of the webpage.  
-  _Example_: `"article"`
+- **`excludeRoutes`**: Array of URL paths (or patterns) to exclude from scraping. Useful for avoiding irrelevant pages such as contact forms or login pages (optional).
 
-- **`sidebar`** (string):  
-  The CSS selector for the sidebar content, if applicable.  
-  _Example_: `".sidebar"`
+### `outputOptions`
 
----
+```json
+{
+  "outputOptions": {
+    "outputFormats": ["txt", "docx"],
+    "outputDirectory": "data"
+  }
+}
+```
 
-### 6. `debug`
+- **`outputFormats`**: Array of formats to save the scraped content in. Supported formats are `"txt"` and `"docx"` (optional). Default: `["txt", "docx"]`.
+- **`outputDirectory`**: Base directory for saving scraped files. This directory will contain `txt/` and `docx/` subfolders (optional). Default: `"data"`.
 
-- **`debug`** (boolean):  
-  Enables or disables debug mode. When enabled, additional logs and information will be displayed to help troubleshoot issues during scraping.  
-  _Default_: `false`
+### `logLevel`
 
----
+```json
+{
+  "logLevel": "info"
+}
+```
 
-## Example `config.json`
+- **`logLevel`**: Sets the logging level for debugging purposes (optional). Supported values: `"error"`, `"warn"`, `"info"`, `"debug"`. Default: `"info"`.
 
-Below is an example of a `config.json` file that uses the options described above:
+### `contentSelectors`
+
+```json
+{
+  "contentSelectors": {
+    "mainContent": "article",
+    "sidebar": ".sidebar"
+  }
+}
+```
+
+- **`mainContent`**: CSS selector for the main content section of the page (optional). Default: `"article"`.
+- **`sidebar`**: CSS selector for sidebar content if needed (optional).
+
+### `debug`
+
+```json
+{
+  "debug": false
+}
+```
+
+- **`debug`**: Enables or disables debug mode for additional logging (optional). Default: `false`.
+
+### Example Configuration
 
 ```json
 {
@@ -107,10 +167,14 @@ Below is an example of a `config.json` file that uses the options described abov
     "requestDelay": 1000
   },
   "excludeOptions": {
-    "excludeClasses": ["row-fluid breadcrumbsContainer", "navSection"],
-    "excludeTags": ["footer", "header"],
-    "includeClasses": ["content", "main"]
+    "excludeClasses": [
+      "row-fluid breadcrumbsContainer",
+      "navSection",
+      "transparentSection"
+    ],
+    "excludeTags": ["footer", "header"]
   },
+  "excludeRoutes": ["/contact", "/aboutus", "/login"],
   "outputOptions": {
     "outputFormats": ["txt", "docx"],
     "outputDirectory": "data"
@@ -123,3 +187,30 @@ Below is an example of a `config.json` file that uses the options described abov
   "debug": false
 }
 ```
+
+## Running the Scraper
+
+To run the scraper, use the following command:
+
+```bash
+npm run scrape -- <BASE_URL>
+```
+
+For example:
+
+```bash
+npm run scrape -- https://www.example.com
+```
+
+## How it Works
+
+1. The scraper clears the `data/` folder at the start of each run.
+2. It scrapes all internal links from the base URL provided via the command line.
+3. It extracts and cleans the content from each page, excluding specific HTML elements based on the configuration.
+4. The content is saved in `.txt` and `.docx` formats in the `data/txt/` and `data/docx/` folders, respectively.
+5. The URL of the page is added at the top of each saved file.
+6. The scraper logs its progress based on the `logLevel` setting in the configuration file.
+
+## License
+
+This project is licensed under the MIT License.
