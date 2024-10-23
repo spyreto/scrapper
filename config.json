@@ -1,0 +1,27 @@
+{
+  "scraperOptions": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
+    "timeout": 5000,
+    "maxRetries": 3,
+    "requestDelay": 1000
+  },
+  "excludeOptions": {
+    "excludeClasses": [
+      "breadcrumbsContainer",
+      "navSection",
+      "transparentSection"
+    ],
+    "excludeTags": ["footer", "header"]
+  },
+  "excludeRoutes": [],
+  "outputOptions": {
+    "outputFormats": ["txt", "docx"],
+    "outputDirectory": "data"
+  },
+  "logLevel": "info",
+  "contentSelectors": {
+    "mainContent": "article",
+    "sidebar": ".sidebar"
+  },
+  "debug": false
+}
